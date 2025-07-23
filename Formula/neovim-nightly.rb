@@ -8,7 +8,7 @@ class NeovimNightly < Formula
     sha256 "1e6add44cfb6ee520cf9071c51213ef9dfb74cfb0529ec5443cb066ad7defe64"
   else
     url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-x86_64.tar.gz"
-    sha256 "5502548aee138a359a7566ce36915804fb268dd1683621313c5098d874770cc8"
+    sha256 "ee68501017b014e54c125e7276878991b2657888033bde0eac40883c3f328f63"
   end
 
   depends_on :macos
