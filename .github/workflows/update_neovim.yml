@@ -1,0 +1,95 @@
+name: Update Neovim Nightly Formula
+
+on:
+  schedule:
+    # Runs at 05:25 UTC every day, about 20 minutes after the nightly build.
+    - cron: "25 5 * * *"
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest release info and update formula
+        id: update_formula
+        run: |
+          # Fetch the latest nightly release data from GitHub API
+          RELEASE_JSON=$(curl -sL -H "Accept: application/vnd.github+json" https://api.github.com/repos/neovim/neovim/releases/tags/nightly)
+
+          # Extract version from the release body. Example: "NVIM v0.12.0-dev-875+gb0e8b0a35f"
+          VERSION=$(echo "$RELEASE_JSON" | jq -r '.body' | grep 'NVIM v' | sed 's/NVIM //' | awk '{print $1}')
+          if [ -z "$VERSION" ]; then
+            echo "Failed to extract version. Aborting."
+            echo "Response: $RELEASE_JSON"
+            exit 1
+          fi
+
+          # Extract SHA256 hashes for macOS builds
+          ARM_SHA=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name == "nvim-macos-arm64.tar.gz") | .digest' | sed 's/sha256://')
+          INTEL_SHA=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name == "nvim-macos-x86_64.tar.gz") | .digest' | sed 's/sha256://')
+
+          if [ -z "$ARM_SHA" ] || [ -z "$INTEL_SHA" ]; then
+            echo "Failed to extract SHA256 hashes. Aborting."
+            exit 1
+          fi
+
+          echo "Latest version: ${VERSION}"
+          echo "ARM64 SHA256: ${ARM_SHA}"
+          echo "x86_64 SHA256: ${INTEL_SHA}"
+
+          # Overwrite the formula file with the new data
+          cat > Formula/neovim-nightly.rb <<EOF
+          class NeovimNightly < Formula
+            desc "Ambitious Vim-fork focused on extensibility and usability"
+            homepage "https://neovim.io/"
+            version "${VERSION}"
+
+            if Hardware::CPU.arm?
+              url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz"
+              sha256 "${ARM_SHA}"
+            else
+              url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-x86_64.tar.gz"
+              sha256 "${INTEL_SHA}"
+            end
+
+            depends_on :macos
+
+            conflicts_with "neovim", because: "both install \`nvim\` binaries"
+
+            def install
+              prefix.install "bin", "share", "lib"
+            end
+
+            def caveats
+              <<~EOS
+                This is a nightly build of Neovim.
+                It may be unstable and subject to frequent changes.
+              EOS
+            end
+
+            test do
+              assert_match "NVIM #{version}", shell_output("#{bin}/nvim --version")
+            end
+          end
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check for changes
+          if ! git diff --quiet Formula/neovim-nightly.rb; then
+            echo "Changes detected. Committing and pushing."
+            # Add, commit, and push
+            git add Formula/neovim-nightly.rb
+            COMMIT_VERSION=$(grep 'version "' Formula/neovim-nightly.rb | awk -F'"' '{print $2}')
+            git commit -m "Update neovim-nightly to ${COMMIT_VERSION}"
+            git push
+          else
+            echo "No changes detected. Nothing to do."
+          fi
