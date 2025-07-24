@@ -1,0 +1,48 @@
+= Neovim Nightly Homebrew Tap
+:uri-neovim: https://neovim.io/
+:uri-repo: https://github.com/vhqkze/homebrew-tap
+
+This repository is a {uri-repo}[Homebrew tap] for installing nightly builds of {uri-neovim}[Neovim] on macOS.
+
+The formula provided is `neovim-nightly`.
+
+== Installation
+
+To add this tap to your Homebrew setup, run the following command:
+
+[source,sh]
+----
+brew tap vhqkze/tap
+----
+
+== Usage
+
+Once the tap is configured, you can install the Neovim nightly build with:
+
+[source,sh]
+----
+brew install neovim-nightly
+----
+
+To upgrade to the latest available nightly build:
+
+[source,sh]
+----
+brew upgrade neovim-nightly
+----
+
+=== Conflicts with Official Neovim
+
+This formula conflicts with the official `neovim` formula from `homebrew-core`. This is because both formulas install a binary with the same name (`nvim`). You can only have one version installed at a time.
+
+If you have the official `neovim` installed, you will need to uninstall it before installing `neovim-nightly`:
+
+[source,sh]
+----
+brew uninstall neovim
+brew install neovim-nightly
+----
+
+== Automation
+
+The `neovim-nightly` formula in this repository is automatically updated every day at approximately 05:25 UTC. A GitHub Actions workflow fetches the latest release information from the official Neovim repository and updates the formula file with the new version and checksums.
