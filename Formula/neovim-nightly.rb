@@ -5,10 +5,10 @@ class NeovimNightly < Formula
 
   if Hardware::CPU.arm?
     url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz"
-    sha256 "9c8690b8f4b1c4bfc16cd0bb8d27a1f00995c64e9b8da48d5c28e7ac1e9c2300"
+    sha256 "b87318c6949bddc56bb518a4b9cff70b510efe8f395adfc23e16c3a0e5e013d0"
   else
     url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-x86_64.tar.gz"
-    sha256 "8c3aab6e345df825cb3bdcb0b82c76f06e9e706a06bac6c177d90e3d7770d79f"
+    sha256 "faadfd3b890c5303b97a393554c65b785cb6a20cd16f79db62c4b3a98a4a2871"
   end
 
   depends_on :macos
