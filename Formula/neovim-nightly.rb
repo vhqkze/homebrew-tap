@@ -1,14 +1,14 @@
 class NeovimNightly < Formula
   desc "Ambitious Vim-fork focused on extensibility and usability"
   homepage "https://neovim.io/"
-  version "v0.12.0-dev-1104+ga33284c2c0"
+  version "v0.12.0-dev-1108+g19f2e5c3eb"
 
   if Hardware::CPU.arm?
     url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz"
-    sha256 "1d10f6cd7c6201881c55b943a06a4eb4a33a894a5156046ff2f03f42eafdd4df"
+    sha256 "a7207fc97bc19b21414592cf2c4796b9720b1bd3acc32db3fcfdbee1bc4af1b1"
   else
     url "https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-x86_64.tar.gz"
-    sha256 "b3eaaa00194441c51980bfb525e7fa6f7d0b848b410020cad40f836804f740fb"
+    sha256 "e8cee4d7b1ff336b632214e27bb2d1cbf09699e0750b4bb075643f834a114d21"
   end
 
   depends_on :macos
